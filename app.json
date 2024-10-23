@@ -2,7 +2,7 @@
   "expo": {
     "name": "Aleli",
     "slug": "Aleli",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,10 +18,21 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ivanleffalle.Aleli"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "dc0b9f52-f05e-4370-94ad-298a72d04a4c"
+      }
+    },
+    "runtimeVersion": "2.0.0",
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "enabled": true
     }
   }
 }
