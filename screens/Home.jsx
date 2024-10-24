@@ -9,6 +9,12 @@ export default function Home() {
     const navigation = useNavigation();
     const appVersion = Constants.expoConfig?.version || "Unknown Version";
 
+    const handleLogout = () => {
+        // Add your log-out logic here, such as clearing authentication state
+        console.log('User logged out');
+        navigation.navigate("Login"); // Redirect to login screen after logging out
+    };
+
     return (
         <View className="flex-1 p-6">
             <View className="flex-1 bg-red-200 rounded-2xl items-center justify-between p-6 shadow-lg">
@@ -51,6 +57,14 @@ export default function Home() {
                     <Text className="text-center text-gray-400 text-sm">Version {appVersion}</Text>
                 </View>
             </View>
+
+            {/* Log Out Button */}
+            <TouchableOpacity
+                onPress={handleLogout}
+                style={styles.logoutButton}
+            >
+                <Text className="text-center text-white text-lg">Log Out</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -64,7 +78,7 @@ const styles = {
         shadowOffset: { width: 5, height: 5 },
         shadowOpacity: 0.7,
         shadowRadius: 10,
-        elevation: 8, 
+        elevation: 8,
     },
     button: {
         width: '100%',
@@ -77,5 +91,13 @@ const styles = {
         shadowRadius: 12,
         elevation: 5,
         shadowColor: '#ffffff',
+    },
+    logoutButton: {
+        marginTop: 20,
+        backgroundColor: '#ff5c5c',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 };
