@@ -64,7 +64,7 @@ const styles = {
         shadowOffset: { width: 5, height: 5 },
         shadowOpacity: 0.7,
         shadowRadius: 10,
-        elevation: 8, // Soft shadow effect
+        elevation: 8, 
     },
     button: {
         width: '100%',

@@ -1,18 +1,17 @@
-import { View, Text, Alert, Pressable, Image, ScrollView, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, Alert, Pressable, Image, TextInput, ActivityIndicator } from 'react-native';
 import React, { useState } from "react";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { db } from '../firebase'; // Adjust path to your Firebase configuration
+import { db } from '../firebase';
 import { MaterialIcons } from "@expo/vector-icons";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from '../firebase';
 
-const app = initializeApp(firebaseConfig); // Initialize Firebase once
+const app = initializeApp(firebaseConfig); 
 
-// Helper function to format Firestore timestamp
 const formatTimestamp = (timestamp) => {
     if (timestamp && timestamp.seconds) {
         const date = new Date(timestamp.seconds * 1000);
-        return date.toLocaleString(); // Customize as needed
+        return date.toLocaleString(); 
     }
     return "Invalid date";
 };
@@ -39,7 +38,7 @@ export default function Details({ route, navigation }) {
     const onDelete = async () => {
         setLoading(true);
         try {
-            const salesDocRef = `${data.year}-${data.monthName}`; // Ensure this matches the add function
+            const salesDocRef = `${data.year}-${data.monthName}`;
             const docRef = doc(db, "sales", salesDocRef, "items", data.id);
             await deleteDoc(docRef);
             navigation.goBack();
@@ -67,10 +66,9 @@ export default function Details({ route, navigation }) {
 
 
     const saveChanges = async () => {
-        setLoading(true); // Start loading
+        setLoading(true); 
         try {
-            // Reference the document using the month and id
-            const salesDocRef = `${data.year}-${data.monthName}`; // Ensure this matches the add function
+                 const salesDocRef = `${data.year}-${data.monthName}`; 
             const docRef = doc(db, "sales", salesDocRef, "items", data.id);
             await updateDoc(docRef, {
                 name,
@@ -78,10 +76,9 @@ export default function Details({ route, navigation }) {
                 price: parseFloat(price),
             });
 
-            // Update local state to reflect changes
-            data.name = name; // Update the name
-            data.cost = parseFloat(cost); // Update the cost
-            data.price = parseFloat(price); // Update the price
+            data.name = name; 
+            data.cost = parseFloat(cost); 
+            data.price = parseFloat(price); 
 
             Alert.alert("Success", "Item updated successfully");
             setIsEditing(false);
@@ -89,7 +86,7 @@ export default function Details({ route, navigation }) {
             console.error("Error updating document: ", error);
             Alert.alert("Error", "Failed to update item.");
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false); 
         }
     };
 

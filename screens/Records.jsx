@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, RefreshControl, TouchableOpacity, ActivityIndicator, FlatList, Image, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import * as Clipboard from 'expo-clipboard';  // Import Clipboard for copying
+import * as Clipboard from 'expo-clipboard';
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from '../firebase';
-import { Ionicons } from '@expo/vector-icons';  // Import icon library
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Records({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [cases, setCases] = useState([]);
-    const [month, setMonth] = useState("9"); // Default month as numeric
-    const [year, setYear] = useState("2024"); // Default year
+    const [month, setMonth] = useState("9");
+    const [year, setYear] = useState("2024");
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [totaltithing, setTotalTithing] = useState(0);
 
     useEffect(() => {
         fetchCases();
-    }, [month, year]); // Fetch cases when month or year changes
+    }, [month, year]);
 
     const fetchCases = () => {
         setLoading(true);
-        const salesDocRef = `${year}-${month}`; // Combine year and month
-        const casesRef = collection(db, "sales", salesDocRef, "items"); // Correct reference
+        const salesDocRef = `${year}-${month}`;
+        const casesRef = collection(db, "sales", salesDocRef, "items");
         const q = query(casesRef, orderBy("date", "asc"));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {

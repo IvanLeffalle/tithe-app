@@ -48,7 +48,7 @@ export default function Records({ navigation }) {
                     <FlatList
                         data={months}
                         showsVerticalScrollIndicator={false}
-                        keyExtractor={(item) => item.id} // Usa el nombre del mes como clave
+                        keyExtractor={(item) => item.id} 
                         ListEmptyComponent={() => (
                             <View style={{ alignItems: 'center', marginTop: 20 }}>
                                 <Text style={{ fontSize: 16, color: '#999' }}>No hay meses disponibles</Text>

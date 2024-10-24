@@ -11,17 +11,14 @@ export default function AddSale({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [date, setDate] = useState(new Date());
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-
-    const handleSave = async () => {
+ const handleSave = async () => {
         const revenue = Number(venta) - Number(costo);
         const month = date.getMonth() + 1;
         const year = date.getFullYear();
-
         if (!name || !costo || !venta) {
             Alert.alert("Error", "All fields are required.");
             return;
         }
-
         const salesDocRef = doc(db, `sales/${year}-${month}`);
         const itemsCollectionRef = collection(salesDocRef, "items");
 
@@ -93,16 +90,11 @@ export default function AddSale({ navigation }) {
                             placeholder="Sale price"
                             keyboardType="numeric"
                         />
-
-
-
                         <TouchableOpacity onPress={showDatePicker} style={styles.dateButton}>
                             <Text className="text-center text-[18px] font-bold">
                                 {date.toLocaleDateString()}
                             </Text>
                         </TouchableOpacity>
-
-
                         <DateTimePickerModal
                             isVisible={isDatePickerVisible}
                             mode="date"
@@ -110,7 +102,6 @@ export default function AddSale({ navigation }) {
                             onCancel={hideDatePicker}
                             date={date}
                         />
-
                         <TouchableOpacity
                             style={styles.button}
                             onPress={handleSave}
