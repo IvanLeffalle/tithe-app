@@ -17,8 +17,8 @@ Tithe-app is a React Native Android application developed with Expo to help user
 
 ## Usage
 - **Adding Sales**: Tap the “Add Sale” button to record a new sale. Enter the amount and other details, then save.
-- **Viewing Revenue**: Go to the “Revenue” screen to see the total revenue from all recorded sales.
-- **Calculating Tithe**: The app automatically calculates the tithe amount (usually 10% of total revenue) and displays it on the main screen.
+- **Viewing Revenue**: Go to the “Records” screen to see the total revenue from all recorded sales.
+- **Calculating Tithe**: The app automatically calculates the tithe amount (usually 10% of total revenue) and displays it on the details screen.
 
 ## Tech Stack
 - **React Native**: Framework for building native apps.
