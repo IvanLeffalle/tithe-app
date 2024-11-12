@@ -1,32 +1,26 @@
 import { auth } from '../firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { Text, StyleSheet, View, ScrollView, TouchableOpacity, TextInput, Alert, Image } from 'react-native';
-import React, { useState, useEffect } from "react";
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useAuth } from '../components/AuthProvider';
 
 export default function LoginScreen() {
-    const { user } = useAuth();  // Obtener el usuario del contexto global
+
     const navigation = useNavigation();
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
 
-    // Redirigir si el usuario está autenticado
-    useEffect(() => {
-        if (user) {
-            navigation.navigate("Home");
-        }
-    }, [user, navigation]);
-
-    const handleSignIn = () => {
-        signInWithEmailAndPassword(auth, email, password)
+    const handleRegister = () => {
+        createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                console.log('Signed In');
+                console.log('Registered');
                 const user = userCredential.user;
                 console.log(user);
-                navigation.navigate("Home");
+                navigation.navigate("Login");
+
             })
             .catch((error) => {
                 let errorMessage;
@@ -62,17 +56,24 @@ export default function LoginScreen() {
                 Alert.alert("Error", errorMessage, [{ text: "OK" }]);
             });
     };
-
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollView}>
                 <View className="flex-1 p-6 justify-center bg-[#222831]">
-                    <View className="rounded-2xl items-center justify-between p-6 ">
+                    <View className=" items-center justify-between p-6 ">
                         <View className="items-center">
-                            <Text className="text-[32px] mb-8 font-bold text-[#ECEFF4] ">Bienvenid@</Text>
+                            <Text className="text-[32px] mb-8 font-bold text-[#ECEFF4]">Registro</Text>
                             <Image source={require("../assets/Logo.png")} className="h-[120] w-[120] mb-12" />
                         </View>
                         <View style={styles.inputContainer}>
+                            <Text style={styles.label}>Nombre de usuario</Text>
+                            <View style={styles.passwordContainer}>
+                                <TextInput
+                                    onChangeText={(text) => setName(text)}
+                                    style={styles.input}
+                                    placeholder="ejemplo"
+                                />
+                            </View>
                             <Text style={styles.label}>Email</Text>
                             <View style={styles.passwordContainer}>
                                 <TextInput
@@ -98,33 +99,35 @@ export default function LoginScreen() {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <TouchableOpacity onPress={handleSignIn} style={[styles.button, { backgroundColor: '#30BFBF' }]}>
-                            <Text style={styles.buttonText}>Ingresar</Text>
+                        <TouchableOpacity onPress={handleRegister} style={[styles.button, { backgroundColor: '#30BFBF' }]}>
+                            <Text style={styles.buttonText}>Registrar</Text>
                         </TouchableOpacity>
-                        <View className="flex-row space-x-1  ">
-                            <Text className="text-[#ECEFF4] ">Aun no tienes cuenta?</Text>
-                            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-                                <Text className="text-[#30BFBF] ">Registrarse</Text>
+                        <View className="flex-row space-x-1">
+                            <Text className="text-[#ECEFF4]">Ya tienes cuenta?</Text>
+                            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                                <Text className="text-[#30BFBF]">Inicia Sesión</Text>
                             </TouchableOpacity>
                         </View>
+
+
                     </View>
-
                 </View>
-
             </ScrollView >
             <View className=" p-6 justify-center bg-[#222831]">
                 <Text className="text-[#eff0f14b] text-center">Copyright © 2024 - ivanmleffalle@gmail.com - Todos los derechos reservados.</Text>
             </View>
         </View >
-    );
+
+    )
 }
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#222831'
+        backgroundColor: '#222831',
     },
     title: {
         textAlign: 'center',
@@ -154,6 +157,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff90',
         paddingVertical: 10,
         marginHorizontal: 10,
+
     },
     inputContainer: {
         marginBottom: 20,
@@ -194,7 +198,7 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: 'white',
+        color: '#ECEFF4',
     },
     linkText: {
         fontSize: 16,

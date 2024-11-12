@@ -1,71 +1,82 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import { MaterialIcons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { getAuth } from "firebase/auth";
+import { signOut } from "firebase/auth";
+
 
 export default function Home() {
+    const auth = getAuth();
     const navigation = useNavigation();
     const appVersion = Constants.expoConfig?.version || "Unknown Version";
 
+    const [userName, setUserName] = useState("Unknown User");
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+            if (user) {
+                setUserName(user.email || "Unknown User");
+            } else {
+                setUserName("Unknown User");
+            }
+        });
+        return unsubscribe;
+    }, [auth]);
+
     const handleLogout = () => {
-        // Add your log-out logic here, such as clearing authentication state
-        console.log('User logged out');
-        navigation.navigate("Login"); // Redirect to login screen after logging out
+        signOut(auth)
+            .then(() => {
+                console.log('User logged out');
+                navigation.navigate("Login"); // Redirige después de cerrar sesión
+            })
+            .catch((error) => {
+                console.error('Error logging out:', error);
+            });
     };
 
     return (
-        <View className="flex-1 p-6">
-            <View className="flex-1 bg-red-200 rounded-2xl items-center justify-between p-6 shadow-lg">
+        <View className="flex-1 ">
+            <View className="flex-1 bg-[#222831] items-center justify-between p-6 shadow-lg">
                 <View className="items-center">
-                    <Text className="text-[32px] mb-8 font-bold text-gray-800">Welcome Bella!</Text>
-                    <Image source={require("../assets/aleliLogo.png")} className="h-[120] w-[120] mb-12" />
+                    <Text className="text-[20px] mb-8 font-bold text-[#ECEFF4] ">Hola, {userName}</Text>
+                    <Image source={require("../assets/Logo.png")} className="h-[120] w-[120] mb-12" />
 
                     <View className="flex-row space-x-4">
                         <TouchableOpacity
                             onPress={() => navigation.navigate("Add")}
                             style={styles.buttonWrapper}
                         >
-                            <LinearGradient
-                                colors={['#e6cece', '#fff5f5']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.button}
-                            >
-                                <MaterialIcons name="add" size={45} color="#1a1a1a" />
-                            </LinearGradient>
+                            <MaterialIcons name="add" size={45} color="#222831" />
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             onPress={() => navigation.navigate("Records")}
                             style={styles.buttonWrapper}
                         >
-                            <LinearGradient
-                                colors={['#e6cece', '#fff5f5']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.button}
-                            >
-                                <MaterialIcons name="view-list" size={45} color="#1a1a1a" />
-                            </LinearGradient>
+                            <MaterialIcons name="view-list" size={45} color="#222831" />
                         </TouchableOpacity>
                     </View>
                 </View>
+                {/* Log Out Button */}
+                <View className="items-end justify-end">
+                    <TouchableOpacity
+                        onPress={handleLogout}
+                        style={styles.logoutButton}
+                    >
+                        <Text className="text-center text-white text-lg">Cerrar Sesión</Text>
+                    </TouchableOpacity>
+                </View>
+
 
                 <View className="items-center">
                     <Text className="text-center text-gray-400 text-sm">Version {appVersion}</Text>
                 </View>
             </View>
 
-            {/* Log Out Button */}
-            <TouchableOpacity
-                onPress={handleLogout}
-                style={styles.logoutButton}
-            >
-                <Text className="text-center text-white text-lg">Log Out</Text>
-            </TouchableOpacity>
-        </View>
+
+        </View >
     );
 }
 
@@ -79,6 +90,10 @@ const styles = {
         shadowOpacity: 0.7,
         shadowRadius: 10,
         elevation: 8,
+        backgroundColor: '#76ABAE',
+        alignItems: 'center',
+        justifyContent: 'center',
+
     },
     button: {
         width: '100%',

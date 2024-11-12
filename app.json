@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Aleli",
-    "slug": "Aleli",
-    "version": "2.0.0",
+    "name": "TitheApp",
+    "slug": "tithe-app",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -19,20 +19,21 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.ivanleffalle.Aleli"
+      "package": "com.ivanleffalle.titheapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "dc0b9f52-f05e-4370-94ad-298a72d04a4c"
+        "projectId": "74adabb8-c513-432a-91ec-996e583701c1"
       }
     },
-    "runtimeVersion": "2.0.0",
+    "runtimeVersion": "1.0.0",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "enabled": true
-    }
+    },
+    "owner": "ivanleffalle"
   }
 }

@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { AuthProvider } from './components/AuthProvider';
 import Navigation from './components/Navigation';
 export default function App() {
   return (
-    <Navigation />
+    <AuthProvider>
+      <Navigation />
+    </AuthProvider>
   );
 }

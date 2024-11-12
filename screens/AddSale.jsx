@@ -1,46 +1,85 @@
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { collection, doc, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from '../firebase';
+import { getAuth } from 'firebase/auth';  // Importamos Firebase Authentication
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function AddSale({ navigation }) {
     const [name, onChangeName] = useState('');
     const [costo, onChangeCosto] = useState('');
     const [venta, onChangeVenta] = useState('');
+    const [gasto1, onChangeGasto1] = useState('');
+    const [gasto2, onChangeGasto2] = useState('');
+    const [gasto3, onChangeGasto3] = useState('');
     const [loading, setLoading] = useState(false);
     const [date, setDate] = useState(new Date());
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
- const handleSave = async () => {
-        const revenue = Number(venta) - Number(costo);
-        const month = date.getMonth() + 1;
-        const year = date.getFullYear();
-        if (!name || !costo || !venta) {
-            Alert.alert("Error", "All fields are required.");
+    const [focusedInput, setFocusedInput] = useState(null); // Para llevar el seguimiento del campo enfocado
+    const [userUid, setUserUid] = useState(null);
+
+    // Obtener el UID del usuario autenticado
+    useEffect(() => {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+            setUserUid(user.uid); // Guardamos el UID del usuario autenticado
+        }
+    }, []);
+
+    const handleSave = async () => {
+        if (!userUid) {
+            Alert.alert("Error", "No hay usuario autenticado.");
             return;
         }
-        const salesDocRef = doc(db, `sales/${year}-${month}`);
+
+        const gasto1Value = Number(gasto1) || 0;
+        const gasto2Value = Number(gasto2) || 0;
+        const gasto3Value = Number(gasto3) || 0;
+        const totalGastos = gasto1Value + gasto2Value + gasto3Value;
+        const revenue = Number(venta) - Number(costo);
+        const total = revenue - totalGastos;
+
+        if (!name || !gasto1 || !venta) {
+            Alert.alert("Error", "Todos los campos son obligatorios.");
+            return;
+        }
+
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+
+        // Usamos el UID del usuario para crear una colección específica para cada uno
+        const salesDocRef = doc(db, `users/${userUid}/sales/${year}-${month}`);  // Creación de una colección por usuario
         const itemsCollectionRef = collection(salesDocRef, "items");
 
         setLoading(true);
         try {
             await addDoc(itemsCollectionRef, {
                 name: name,
-                cost: Number(costo),
+                gasto1: gasto1Value,
+                gasto2: gasto2Value,
+                gasto3: gasto3Value,
+                cost: totalGastos,
                 price: Number(venta),
                 revenue: revenue,
+                total: total,
                 date: date,
                 monthName: month,
-                year: year
+                year: year,
+                timestamp: serverTimestamp()  // Puedes agregar un timestamp si lo deseas
             });
 
-            Alert.alert("Success", "Sale saved!");
+            Alert.alert("Éxito", "Venta guardada!");
+            // Limpiar campos
             onChangeName('');
             onChangeCosto('');
             onChangeVenta('');
+            onChangeGasto1('');
+            onChangeGasto2('');
+            onChangeGasto3('');
         } catch (e) {
-            console.error("Error adding document: ", e);
-            Alert.alert("Error", e.message || "The sale could not be saved.");
+            console.error("Error al agregar el documento: ", e);
+            Alert.alert("Error", e.message || "No se pudo guardar la venta.");
         } finally {
             setLoading(false);
         }
@@ -59,6 +98,14 @@ export default function AddSale({ navigation }) {
         hideDatePicker();
     };
 
+    const handleFocus = (inputName) => {
+        setFocusedInput(inputName); // Actualiza el estado cuando un campo es enfocado
+    };
+
+    const handleBlur = () => {
+        setFocusedInput(null); // Restaura el estado cuando el campo pierde el foco
+    };
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -66,32 +113,69 @@ export default function AddSale({ navigation }) {
             style={{ flex: 1 }}
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View className="flex-1 justify-center p-5 align-middle">
-                    <View className="bg-red-200 p-5 h-full  rounded-2xl  justify-start items-center">
-                        <Text className="text-[25px] mb-10">Welcome Bella!</Text>
-                        <Image source={require("../assets/aleliLogo.png")} className="h-[100] w-[100] mb-10" />
+                <View className="flex-1 justify-center align-middle">
+                    <View className="flex-1  bg-[#222831] items-center justify-start p-6 shadow-lg">
+                        {/* Detalle */}
                         <TextInput
-                            className="bg-red-300 w-full m-2 p-2 rounded-lg shadow-lg text-center"
+                            className={`bg-[#31363F] w-full mb-5 p-2 rounded-lg shadow-lg text-center border-2 text-[#ECEFF4] ${focusedInput === 'name' ? 'border-[#76ABAE]' : 'border-[#ECEFF4]'}`}
                             onChangeText={onChangeName}
                             value={name}
-                            placeholder="Name"
+                            placeholder="Detalle"
+                            placeholderTextColor="#EEEEEE"
+                            onFocus={() => handleFocus('name')}
+                            onBlur={handleBlur}
                         />
+
+                        {/* Gasto 1 */}
                         <TextInput
-                            className="bg-red-300 w-full m-2 p-2 rounded-lg shadow-lg text-center"
-                            onChangeText={onChangeCosto}
-                            value={costo}
-                            placeholder="Cost price"
+                            className={`bg-[#31363F] w-full mb-5 p-2 rounded-lg shadow-lg text-center border-2 text-[#ECEFF4] ${focusedInput === 'gasto1' ? 'border-[#76ABAE]' : 'border-[#ECEFF4]'}`}
+                            onChangeText={onChangeGasto1}
+                            value={gasto1}
+                            placeholder="Gasto 1"
                             keyboardType="numeric"
+                            placeholderTextColor="#EEEEEE"
+                            onFocus={() => handleFocus('gasto1')}
+                            onBlur={handleBlur}
                         />
+
+                        {/* Gasto 2 */}
                         <TextInput
-                            className="bg-red-300 w-full m-2 p-2 rounded-lg shadow-lg text-center"
+                            className={`bg-[#31363F] w-full mb-5 p-2 rounded-lg shadow-lg text-center border-2 text-[#ECEFF4] ${focusedInput === 'gasto2' ? 'border-[#76ABAE]' : 'border-[#ECEFF4]'}`}
+                            onChangeText={onChangeGasto2}
+                            value={gasto2}
+                            placeholder="Gasto 2 (Opcional)"
+                            keyboardType="numeric"
+                            placeholderTextColor="#EEEEEE"
+                            onFocus={() => handleFocus('gasto2')}
+                            onBlur={handleBlur}
+                        />
+
+                        {/* Gasto 3 */}
+                        <TextInput
+                            className={`bg-[#31363F] w-full mb-5 p-2 rounded-lg shadow-lg text-center border-2 text-[#ECEFF4] ${focusedInput === 'gasto3' ? 'border-[#76ABAE]' : 'border-[#ECEFF4]'}`}
+                            onChangeText={onChangeGasto3}
+                            value={gasto3}
+                            placeholder="Gasto 3 (Opcional)"
+                            keyboardType="numeric"
+                            placeholderTextColor="#EEEEEE"
+                            onFocus={() => handleFocus('gasto3')}
+                            onBlur={handleBlur}
+                        />
+
+                        {/* Precio de Venta */}
+                        <TextInput
+                            className={`bg-[#31363F] w-full mb-5 p-2 rounded-lg shadow-lg text-center border-2 text-[#ECEFF4] ${focusedInput === 'venta' ? 'border-[#76ABAE]' : 'border-[#ECEFF4]'}`}
                             onChangeText={onChangeVenta}
                             value={venta}
-                            placeholder="Sale price"
+                            placeholder="Precio de Venta"
                             keyboardType="numeric"
+                            placeholderTextColor="#EEEEEE"
+                            onFocus={() => handleFocus('venta')}
+                            onBlur={handleBlur}
                         />
+
                         <TouchableOpacity onPress={showDatePicker} style={styles.dateButton}>
-                            <Text className="text-center text-[18px] font-bold">
+                            <Text className="text-center text-[18px] font-bold text-[#ECEFF4]">
                                 {date.toLocaleDateString()}
                             </Text>
                         </TouchableOpacity>
@@ -110,7 +194,7 @@ export default function AddSale({ navigation }) {
                             {loading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text className="justify-center text-center font-bold text-[20px]">Save</Text>
+                                <Text className="justify-center text-center font-bold text-[20px] ">Guardar</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -122,7 +206,7 @@ export default function AddSale({ navigation }) {
 
 const styles = {
     dateButton: {
-        backgroundColor: '#fca5a5',
+        backgroundColor: '#31363F',
         width: '100%',
         padding: 12,
         marginVertical: 10,
@@ -134,7 +218,7 @@ const styles = {
         textAlign: 'center',
     },
     button: {
-        backgroundColor: '#fca5a5',
+        backgroundColor: '#76ABAE',
         width: 250,
         margin: 8,
         padding: 15,
