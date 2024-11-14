@@ -1,35 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, RefreshControl, TouchableOpacity, ActivityIndicator, FlatList, Image, Alert } from 'react-native';
+import { View, Text, RefreshControl, TouchableOpacity, ActivityIndicator, FlatList, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as Clipboard from 'expo-clipboard';
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from '../firebase';
 import { Ionicons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';  // Importar para obtener el UID del usuario
+import { getAuth } from 'firebase/auth';
+import { TextInput } from "react-native";
 
 export default function Records({ navigation }) {
     const currentMonth = new Date().getMonth() + 1;
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [cases, setCases] = useState([]);
+    const [filteredCases, setFilteredCases] = useState([]);  // Estado para los casos filtrados
     const [month, setMonth] = useState(currentMonth.toString());
     const [year, setYear] = useState("2024");
     const [totalRevenue, setTotalRevenue] = useState(0);
     const [totaltithing, setTotalTithing] = useState(0);
-    const [userUid, setUserUid] = useState(null);  // Almacenar el UID del usuario autenticado
+    const [userUid, setUserUid] = useState(null);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
-        const user = getAuth().currentUser;  // Obtener el usuario autenticado
+        const user = getAuth().currentUser;
         if (user) {
-            setUserUid(user.uid);  // Guardar el UID del usuario
+            setUserUid(user.uid);
         }
     }, []);
 
     useEffect(() => {
         if (userUid) {
-            fetchCases();  // Fetch solo si hay un UID de usuario
+            fetchCases();
         }
-    }, [month, year, userUid]);  // Dependencias: mes, año y UID del usuario
+    }, [month, year, userUid]);
+
+    useEffect(() => {
+        filterCases(search);  // Llama a filterCases cada vez que `search` cambia
+    }, [search, cases]);
 
     const fetchCases = () => {
         setLoading(true);
@@ -40,12 +47,13 @@ export default function Records({ navigation }) {
         }
 
         const salesDocRef = `${year}-${month}`;
-        const casesRef = collection(db, "users", userUid, "sales", salesDocRef, "items");  // Apuntar a la colección de ventas del usuario específico
+        const casesRef = collection(db, "users", userUid, "sales", salesDocRef, "items");
         const q = query(casesRef, orderBy("date", "asc"));
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             const caseData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
             setCases(caseData);
+            setFilteredCases(caseData);  // Inicializar filteredCases con los datos completos
 
             const GananciaTotal = caseData.reduce((sum, item) => sum + (parseFloat(item.total) || 0), 0);
             setTotalRevenue(GananciaTotal);
@@ -64,6 +72,13 @@ export default function Records({ navigation }) {
         return unsubscribe;
     };
 
+    const filterCases = (text) => {
+        const filteredData = cases.filter(item =>
+            item.name.toLowerCase().includes(text.toLowerCase())
+        );
+        setFilteredCases(filteredData);
+    };
+
     const onRefresh = () => {
         setRefreshing(true);
         fetchCases();
@@ -77,10 +92,20 @@ export default function Records({ navigation }) {
 
     return (
         <View className="flex-1 justify-center align-middle">
-            <View className="bg-[#222831] p-5 h-full justify-start items-center">
-                <Text className="text-[32px] mb-8 font-bold text-gray-800">Welcome Bella!</Text>
+            <View className="bg-[#222831] py-5 h-full justify-start items-center">
+                <View style={styles.inputContainer}>
+                    <Ionicons name="search" size={20} color="#00ADB5" style={styles.searchIcon} />
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="Buscar..."
+                        onChangeText={(text) => setSearch(text)}
+                        value={search}
+                        placeholderTextColor="#00ADB5"
+                    />
+                </View>
 
-                {/* Picker para el mes */}
+
+                {/* Picker para el mes y año */}
                 <View className="flex-row w-full gap-2 items-center justify-center mb-5">
                     <View style={{ borderWidth: 1, borderColor: 'black', borderRadius: 10, overflow: 'hidden', marginBottom: 5 }}>
                         <Picker
@@ -123,7 +148,7 @@ export default function Records({ navigation }) {
                     <ActivityIndicator size="large" color="#0000ff" />
                 ) : (
                     <FlatList
-                        data={cases}
+                        data={filteredCases}  // Utiliza los datos filtrados
                         showsVerticalScrollIndicator={false}
                         keyExtractor={(item) => item.id}
                         ListEmptyComponent={() => (
@@ -135,12 +160,11 @@ export default function Records({ navigation }) {
                             <TouchableOpacity
                                 onPress={() => navigation.navigate("Details", { data: item, month: month, year: year, userUid: userUid })}
                                 style={styles.button}
-                                className="p-2 rounded-lg w-[250] mb-2 "
+                                className="p-2 rounded-lg w-[250] mb-2"
                             >
                                 <Text className="font-[18] text-center text-[#ECEFF4]">{item.name}</Text>
                                 <Text className="font-[14] text-center text-[#ECEFF4]">${item.total}</Text>
                             </TouchableOpacity>
-
                         )}
                         refreshControl={
                             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#30BFBF"]} />
@@ -159,14 +183,13 @@ export default function Records({ navigation }) {
                     </TouchableOpacity>
                 </View>
             </View>
-        </View>
+        </View >
     );
 }
 
 const styles = {
     button: {
         backgroundColor: '#31363F',
-        width: 250,
         margin: 8,
         padding: 15,
         borderRadius: 10,
@@ -175,5 +198,29 @@ const styles = {
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.5,
+    },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    inputContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#00ADB5",
+        borderRadius: 10,
+        width: "80%",
+        paddingHorizontal: 10,
+        marginBottom: 20,
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    textInput: {
+        width: "100%",
+        height: 40,
+        fontSize: 16,
+        color: "#ECEFF4",
     },
 };

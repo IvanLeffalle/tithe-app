@@ -25,10 +25,28 @@ function HomeStack() {
                 headerTitle: 'Inicio'
             }}
             />
-            <Stack.Screen name="Add" component={AddSale} options={{ headerTitle: 'Agregar venta' }} />
+            <Stack.Screen name="Add" component={AddSale} options={{
+                headerTitle: 'Agregar venta', headerStyle: {
+                    backgroundColor: '#31363F',
+
+                },
+                headerTintColor: '#ECEFF4',
+            }} />
             <Stack.Screen name="Mes" component={ByMonth} />
-            <Stack.Screen name="Records" component={Records} options={{ headerTitle: 'Registros' }} />
-            <Stack.Screen name="Details" component={Details} options={{ headerTitle: 'Detalles de venta' }} />
+            <Stack.Screen name="Records" component={Records} options={{
+                headerTitle: 'Registros', headerStyle: {
+                    backgroundColor: '#31363F',
+
+                },
+                headerTintColor: '#ECEFF4',
+            }} />
+            <Stack.Screen name="Details" component={Details} options={{
+                headerTitle: 'Detalles de venta', headerStyle: {
+                    backgroundColor: '#31363F',
+
+                },
+                headerTintColor: '#ECEFF4',
+            }} />
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen
                 name="Register"

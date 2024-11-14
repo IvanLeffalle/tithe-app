@@ -2,7 +2,7 @@
   "expo": {
     "name": "TitheApp",
     "slug": "tithe-app",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -29,7 +29,7 @@
         "projectId": "74adabb8-c513-432a-91ec-996e583701c1"
       }
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.1.0",
     "updates": {
       "fallbackToCacheTimeout": 0,
       "enabled": true

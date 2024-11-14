@@ -31,7 +31,7 @@ export default function Details({ route, navigation }) {
             setPrice(data.price?.toString() || "");
         }
     }, [data]);
-    
+
     useEffect(() => {
         console.log("User UID:", userUid);
         console.log("Month:", month);
@@ -204,7 +204,7 @@ export default function Details({ route, navigation }) {
                     <>
                         <Image source={require("../assets/Logo.png")} className="h-[120] w-[120] mb-12" />
                         <View className="bg-[#f9fafb] p-4 rounded-lg mb-4 items-center w-full">
-                            <Text className="text-xl font-bold mb-4">{data.name}</Text>
+                            <Text className="text-xl font-bold ">{data.name}</Text>
                         </View>
                         <View className="bg-[#f9fafb] p-4 rounded-lg mb-4 items-center w-full">
                             <Text className="text-gray-600 font-bold mb-2">Gasto 1: ${data.gasto1}</Text>
